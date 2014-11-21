@@ -1,0 +1,14 @@
+The story thus far: 
+
+- We are working on a new set of measures for probabilistic networks (applied to ecology)
+- I am developing the implementation in parallel to the main text of the paper
+- I am doing real-time testing and juggling several repos at once
+- I only move forward with writing something if the test suite passes, and code coverage increases
+
+What I'll do in the chapter:
+
+- Talk a bit about the (scientific) problem, and why it required a new method
+- Discuss why we wanted to provide an implementation as well as a paper
+- Show how the paper was built *around* the program, not the other way around
+- Outline the various issues / challenges / things I've learned
+- Try to give some sort of roadmap for people that want to do the same
