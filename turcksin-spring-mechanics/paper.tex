@@ -445,10 +445,10 @@ clone and graft from this new testcase, then it becomes the root of a separate
 tree (let's call it an \textit{exemplar} testcase) and the inheritance graph
 will turn into a \textit{forest graph} (a collection of tree graphs).
 
-\begin{wrapfigure}{L}{0.28\textwidth}
+\begin{wrapfigure}{L}{0.45\textwidth}
   \begin{center}
     \vspace*{-24pt}
-    \includegraphics[width=0.25\textwidth]{figures/graph.png}
+    \includegraphics[height=0.45\textwidth,angle=-90]{figures/graph.png}
     \vspace*{-12pt}
   \end{center}
   \caption{\it Connection graph of the 144 tests that are part of the
@@ -469,13 +469,31 @@ modifications such as those between testcases 3, 4 and 5 above. On the other
 hand, other group are further apart and are derived from different
 examplars.
 
+The message from this section, though, is that in almost all cases writing a
+new testcase is actually really easy: find a good starting point, copy it,
+make minor modifications and additions, and verify the output. Testing
+scientific codes really doesn't have to be hard!
 
 \subsection{Dealing with many tests}
 
+In practice, once you have accumulated a number of testcases, you will
+encounter practical difficulties. First, when you try to find the right
+starting point to clone and graft a new testcase, you will not recall if
+\texttt{tests/testcase-3.json} or \texttt{tests/testcase-5.json} is the one
+that's closest to the situation you have in mind (for example, if you want to
+augment your model and you are looking again for a testcase with equal masses
+and friction coefficients). 
 
+In our experience, using more descriptive filenames for the input files has
+helped, as is placing comments at the top of each input file describing what
+the test does or, if appropriate, how it differs from a previous
+testcase. Many of our testcases in \aspect{} have names like
+\texttt{tests/melt-fraction-peridotite.prm} and comments at the top of the
+form ``\textit{Like the melt-fraction.prm test, but using the peridotite
+  material parameters.}''
 
-In practice, once you have accumulated a number of testcases, running and
-comparing them by hand using the commands above becomes unwieldy. In such
+Second, running and
+comparing many tests by hand using the commands above becomes unwieldy. In such
 cases, it is useful to write little \texttt{Makefile}s that do this
 automatically, or to use one of the tools available as open source -- for
 example, the \texttt{CTest} program. It also
@@ -484,10 +502,14 @@ example, you run the 7,000 tests of the \dealii{} testsuite. Again, there are
 freely available systems such as \texttt{CDash} that present graphical
 overviews of all succeeding and failing tests in a browser.
 
-talk about a better naming scheme to make it easier to find test cases to clone
 
 \subsection{Dealing with round-off}
 
 Talk about numdiff
+
+
+\section{Conclusions}
+
+
 
 \end{document}
