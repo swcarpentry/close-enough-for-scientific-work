@@ -1,0 +1,6 @@
+# create graph with "dot -Tpng inheritance.dot -o inheritance.png"
+
+digraph G {
+ 1 -> 2 -> 3 -> 4;
+ 3 -> 5;
+}

@@ -1,0 +1,5 @@
+"initial position"   : [ [1,2,3], [4,5,6] ],
+"initial velocity"   : [ [0,0,0], [1,1,1] ],
+"masses"             : [ 13.5, 29.75 ],
+"spring constant"    : 42,
+"spring rest length" : 2.25
