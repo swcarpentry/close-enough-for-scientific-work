@@ -159,5 +159,72 @@ as \aspect{}.
 So this is what we're going to consider: Imagine you are dealing with two
 baseballs (or, if you're living in the ``rest of the world'', golf balls) that
 are connected by a spring. If you throw them, what are their trajectories?
+Newton's law says that for each of the two balls, mass times acceleration
+equals the force on the body. Let's assume for a moment that there is no air
+friction and that the spring is massless, then the differential equation that
+describes the motion of each of the two bodies ($i=1,2$) is
+\begin{align}
+  \label{eq:ode}
+  m_i 
+  \underbrace{\mathbf x_i''(t)}_{\text{acceleration}}
+  &=
+  \underbrace{m_i \mathbf g}_{\text{gravity}}
+  -
+  \underbrace{D (\|\mathbf x_2(t) - \mathbf x_1(t)\| - L)}_{\text{magnitude of
+    spring force}}
+\underbrace{\frac{\mathbf x_2(t) - \mathbf x_1(t)}{\|\mathbf x_2(t) - \mathbf
+    x_1(t)\|}}_{\text{direction of spring force}},
+\\
+\label{eq:ic1}
+  \mathbf x_i(0) &= \mathbf x_{i,0},
+\\
+\label{eq:ic2}
+  \mathbf x_i'(0) &= \mathbf v_{i,0},
+\end{align}
+where $\mathbf x_i(t)$ is the position of the $i$th body at time $t$, $\mathbf
+g=(0,0,-g)^T$ is the gravity acceleration, $D$ is the spring constant of
+the spring that connects the two balls, and $L$ is the rest length of the
+spring. The second and third equations are the necessary initial conditions
+for this second order differential equation and denote the initial position
+$\mathbf x_{i,0}$ and initial velocity $\mathbf v_{i,0}$.
+
+\section{A first program}
+
+Let's implement a program that can solve these questions. Because we want it
+to be simple and accessible, we're going to use Python as it's widely used and
+because it comes with a number of tools that are going to make our life
+simpler by keeping the program short. Here it is:
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize]
+  from json import *
+  ...
+\end{lstlisting}
+The program reads its input parameters from a file in JSON (see
+\url{http://en.wikipedia.org/wiki/JSON}) format.%
+\footnote{JSON is not the prettiest format to write input files in and we
+  don't recommend you do it for your program (it is typically intended for
+  exchange of data between programs, not between humans and computers). But it
+  will serve for our purposes here primarily because Python has a built-in
+  parser for it that makes our program pleasantly free of the tedium of
+  parsing input files.}
+Here is an example file:
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize]
+  "initial position"   : [ [1,2,3], [4,5,6] ],
+  "initial velocity"   : [ [0,0,0], [1,1,1] ],
+  "masses"             : [ 13.5, 29.75 ],
+  "spring constant"    : 42,
+  "spring rest length" : 2.25
+\end{lstlisting}
+In JSON, the name of a parameter is to the left of the colon and its value is
+to the right; name/value pairs are separated by commas. The value of a
+parameter can be a plain number, or it can be an array if enclosed in
+brackets. Arrays can also be nested, which is what we use here for the initial
+positions and velocities of our two bodies, each of which lives in
+three-dimensional space. With this explanation, it is clear that the input file
+specifies properties of the two masses as $\mathbf x_{1,0}=(1,2,3)^T, \mathbf
+x_{2,0}=(4,5,6)^T, \mathbf v_{1,0}=(0,0,0)^T, \mathbf v_{2,0}=(1,1,1)^T,
+m_1=13.5, m_2=29.75$ and $D=42, L=2.25$ for the spring that connects them, 
+thereby completely determining everything in equations
+\eqref{eq:ode}--\eqref{eq:ic2}.
+
 
 \end{document}
