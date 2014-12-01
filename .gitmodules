@@ -1,3 +1,0 @@
-[submodule "lattice-boltzmann/LatBo.jl"]
-	path = lattice-boltzmann/LatBo.jl
-	url = https://github.com/UCL/LatBo.jl
