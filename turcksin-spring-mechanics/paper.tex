@@ -37,9 +37,9 @@
 
 \begin{document}
 
-%\runningheads{B. Turcksin, T. Heister, W. Bangerth}{Clone and graft: Testing whole applications}
+%\runningheads{B. Turcksin, T. Heister, W. Bangerth}{Clone and graft: Testing applications}
 
-\title{Clone and graft:\\ Testing whole scientific
+\title{Clone and graft:\\ Testing scientific
   applications as they are built}
 
 \author{Bruno Turcksin\footnote{Department of Mathematics, Texas A\&M
@@ -492,18 +492,76 @@ testcase. Many of our testcases in \aspect{} have names like
 form ``\textit{Like the melt-fraction.prm test, but using the peridotite
   material parameters.}''
 
-Second, running and
-comparing many tests by hand using the commands above becomes unwieldy. In such
-cases, it is useful to write little \texttt{Makefile}s that do this
-automatically, or to use one of the tools available as open source -- for
-example, the \texttt{CTest} program. It also
-becomes more difficult to display tests that create difference when, for
+Second, running and comparing many tests by hand using the commands above
+becomes unwieldy. In such cases, it is useful to write little
+\texttt{Makefile}s that do this automatically, or to use one of the tools
+available as open source -- for example, the \texttt{CTest} program. It also
+becomes more difficult to display tests that create differences when, for
 example, you run the 7,000 tests of the \dealii{} testsuite. Again, there are
 freely available systems such as \texttt{CDash} that present graphical
 overviews of all succeeding and failing tests in a browser.
 
+In practice, you're not likely to quickly get to a project size where learning
+to use tools like \texttt{CTest} and \texttt{CDash} are important
+considerations. In practice, the point where using such tools becomes
+indispensible is when your code has several 10,000 lines of code or more --
+several years worth of work. When you get to this point, your project will
+have all sorts of other growing pains as well, such as having to deal with
+external users, running mailing lists, portability, managing complexity and
+other issues. Some of these are discussed in \cite{BH13}. The point simply is
+that there is no need to worry too much about testing tools for programs of
+this size: care about writing tests from the beginning and if the number of
+tests becomes too unwieldy, there will be professional-grade tools you can
+switch to that can manage this for you. In the meantime, a little shell script
+such as the following will do just fine:
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=bash]
+  # loop over all .json input files
+  for jsonfile in *.json ; do
+    # execute our program on it and pipe the output into a file
+    python ${jsonfile} > ${jsonfile}.new
+
+    # then compare output; only ask 'diff' to report whether the
+    # files are the same or not, and create output depending on this:
+    # print an 'X' if there is a difference, a '.' if there isn't. this
+    # ensures that test failures are easily visible
+    if (diff ${jasonfile} ${jsonfile}.new > /dev/null) ; then
+      echo " .    ${jasonfile}" ;
+    else 
+      echo " X    ${jasonfile}" ;
+    fi
+  done
+\end{lstlisting}
+If you call this script, say, \texttt{tests/compare.sh}, then running it using
+the command \texttt{cd tests/ ; bash -e compare.sh} should produce output like
+this:
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=bash]
+ .    testcase-1.json
+ .    testcase-2.json
+ .    testcase-3.json
+ .    testcase-4.json
+ .    testcase-5.json
+\end{lstlisting}
+On the other hand, if your output looks like this
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=bash]
+ .    testcase-1.json
+ .    testcase-2.json
+ .    testcase-3.json
+ X    testcase-4.json
+ .    testcase-5.json
+\end{lstlisting}
+then you know that you just broke some functionality that
+\texttt{testcase-4.json} checks. Given how easy it is to run this script, you
+want to run this script often to find new bugs as early as possible.
+
 
 \subsection{Dealing with round-off}
+
+Scientific computing deals, at a fundamental level, almost always with
+floating point numbers. Unfortunately, floating point arithmetic suffers from
+some rather annoying oddities that can make testing scientific codes more
+challenging than code that doesn't use floating point numbers.
+
+First, floating point numbers do not enjoy the same properties as integers.
 
 Talk about numdiff
 
