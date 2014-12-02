@@ -1,7 +1,14 @@
+---
+highlighter: pygments
+title: Introduction
+encoding: UTF-8
+authors: Samantha Ahern, Mayeul d\'Avezac, Adrian Harwood, Joe O\'Conner
+---
+
+
 Lattice-Boltzmann implementation in Julia
 -----------------------------------------
 
-Authors: Samantha Ahern, Mayeul d'Avezac, Adrian Harwood, Joe O'Conner  
 
 The Lattice-Boltzmann method solves the Navier-Stokes equations - i.e. fluid
 dynamics - using an intuitive description of how a discrete set of fictive
@@ -24,3 +31,23 @@ The code used throughout the chapter is based on
 [LatBo.jl](https://github.com/UCL/LatBo.jl). It was developped during the
 course of a Hackathon sponsored by the [Software Sustainability
 Institute](http://www.software.ac.uk/).
+
+[LatBo.jl](https://github.com/UCL/LatBo.jl) exists as a Julia package. It can
+be installed from the Julia prompt with:
+
+{% highlight Julia %}
+Pkg.clone("git@github.com:UCL/LatBo.jl.git")
+Pkg.installed("LatBo")
+{% endhighlight %}
+
+The first line will install the package and the second line checks that the
+install process completed. And since this about testing, we should certainly
+check that all tests pass:
+
+{% highlight Julia %}
+Pkg.Test("LatBo")
+{% endhighlight %}
+
+At this point we should really figure out how to get output out of julia and
+place it here. Really not sure how this can work without some sort of build
+layer.
