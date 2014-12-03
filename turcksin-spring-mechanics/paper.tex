@@ -94,16 +94,23 @@ Consequently, different approaches are necessary. In the following, we will
 lay out what we have learned from building and testing the \aspect{} code for the
 geodynamics community over the past few years. In the following, let us first
 talk briefly about what \aspect{} does and how the way it is used is
-prototypical for scientific codes (Section~\ref{...}). At the same time,
+prototypical for scientific codes (Section~\ref{sec:aspect}). At the same time,
 \aspect{} is a very complex code and just installing it is non-trivial;
 consequently, it does not serve the purpose of this book well and we will
-present a simple model problem and model code in Section~\ref{...} that we
-will then use throughout the rest of the chapter. Section~\ref{...} then
-discusses how we can write tests alongside developing the code -- using the
-\textit{clone and graft} technique of creating test cases. ...COMPLETE...
+present a simple model problem and model code in
+Sections~\ref{sec:model-problem} and \ref{sec:first-steps} that we
+will then use throughout the rest of the chapter. Sections~\ref{sec:testing}
+and \ref{sec:extending} then
+discuss how we write tests for whole applications, and how this process
+happens as we continue to develop the code -- using the
+\textit{clone and graft} technique of creating test
+cases. Section~\ref{sec:practice} then deals with how real practice interferes
+with the ideas discussed in previous sections, and we conclude and summarize
+in Section~\ref{sec:conclusions}. 
 
 
 \section{\aspect{}: the Advanced Solver for Problems in Earth ConvecTion}
+\label{sec:aspect}
 
 \begin{wrapfigure}{R}{0.44\textwidth}
   \begin{center}
@@ -145,10 +152,12 @@ that simply implement a class derived from some base class and that is then
 registered in \aspect{}'s plugin registry at run time. Because this is the way
 users interact with this code, it is also the framework within which we have
 to approach testing: tests need to consist of specially crafted input files
-and/or plugins.
+and/or plugins. Plugins go beyond what we can discuss here, but we will show
+you that it is actually quite simple to write tests using input files.
 
 
 \section{Make it simple for me: A model problem}
+\label{sec:model-problem}
 
 We're not going to try demonstrating our approach using \aspect{} -- that
 would be far to complex to install and deal with. Rather, we're going to show
@@ -194,6 +203,7 @@ for this second order differential equation and denote the initial position
 $\mathbf x_{i,0}$ and initial velocity $\mathbf v_{i,0}$.
 
 \section{A first program}
+\label{sec:first-steps}
 
 Let's implement a program that can solve these questions. Because we want it
 to be simple and accessible, we're going to use Python as it's widely used and
@@ -232,6 +242,8 @@ two connected balls over a number of seconds.
 
 
 \section{Testing for perpetuity}
+\label{sec:testing}
+
 
 So how does one test a code like this? There are really two answers to
 this. The first has to do with ensuring that the functionality we have just
@@ -320,6 +332,7 @@ purposefully change it, then you know it's time to break out the debugger.
 
 
 \section{More functionality}
+\label{sec:extending}
 
 We write tests because we expect that our code base will continue to change --
 to implement new functionality, or to fix existing bugs. So let's do this:
@@ -414,6 +427,7 @@ in fur). Our ``smell check'' would now be to verify that the second ball drags
 behind the first.
 
 \section{Practical considerations}
+\label{sec:practice}
 
 \subsection{When clone and graft fails}
 
@@ -604,7 +618,7 @@ following to ensure that numbers $a$ and $b$ compare as equal if $|a-b|\le
 
 
 \section{Conclusions}
-
+\label{sec:conclusions}
 
 
 \end{document}
