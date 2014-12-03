@@ -61,10 +61,10 @@ half by now. Over the years we have developed many procedures that help us
 test our software extensively but our expertise was mostly in the development
 of \textit{libraries} for numerical methods -- specifically, the \dealii{}
 library for finite element computations (see
-\url{http://www.dealii.org/}). Libraries are of course the foundation of
+\url{http://www.dealii.org/} and \cite{BHK07,BK99m}). Libraries are of course the foundation of
 almost every single scientific code, starting with ``simple'' ones such as
 BLAS and LAPACK to very much more complex ones such as \petsc{}, \trilinos{}, or
-\dealii{}.
+\dealii{} \cite{petsc,trilinos,trilinos-web-page}.
 
 Developing testing schemes for libraries is reasonably well understood. So,
 when we ventured in the area of building applications for scientific purposes
@@ -125,7 +125,7 @@ in Section~\ref{sec:conclusions}.
 \end{wrapfigure}
 The code that made us think about how to test whole applications is called
 \aspect{} -- short for the Advanced Solver for Problems in Earth ConvecTion
-\cite{...}. It is a program that simulates how material moves around the Earth
+\cite{KHB12}. It is a program that simulates how material moves around the Earth
 mantle (i.e., the region between the metallic core of Earth and the plates at
 the surface on which we live). While the material in the mantle is solid rock,
 it is hot and under enormous pressure and can deform with velocities of a few
@@ -590,9 +590,9 @@ nothing fundamentally changed -- but the output will be different.
 Over the past 15 years, we have played with many ideas how to address this
 problem. For example, we tried to just never output numbers to their full 16
 digits of double precision. The idea is that if you only output 5 digits, then
-roundoff surely can't play a role. The problem is that the numbers 1.000\,049
-999\,999\,999\,9 and 1.000\,050\,000\,000\,000\,0 only differ by round-off,
-but when rounded to 5 digits, you either get 1.000\,0 or 1.000\,1. One could
+roundoff surely can't play a role. The problem is that the numbers 1.234\,549
+999\,999\,999\,9 and 1.234\,550\,000\,000\,000\,1 only differ by round-off,
+but when rounded to 5 digits, you either get 1.234\,5 or 1.234\,6. One could
 think that this is a contrived example, but it turns out that this happens
 with rather frustrating regularity if you just output enough numbers -- as one
 often does in scientific codes.
@@ -611,14 +611,67 @@ absolute tolerance, then they are considered equal even if the characters by
 which they are represented in an output file are different. For example, you
 would replace the \texttt{diff} command used previously by the
 following to ensure that numbers $a$ and $b$ compare as equal if $|a-b|\le
-10^{-6}$ or $|a-b|\le 10^{-8} \max\{|a|,|b|\}$:
+10^{-6}$ or $|a-b|\le 10^{-8} \min\{|a|,|b|\}$:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=csh]
   numdiff -a 1e-6 -r 1e-8 testcase-1.output testcase-1.output.new
 \end{lstlisting}
+Using this trick, numbers that are written into the output file
+\texttt{testcase-1.output.new} on one machine with slight differences to the
+ones originally saved in \texttt{testcase-1.output} will still be considered
+the same, and the comparison will succeed.
 
 
-\section{Conclusions}
+\section{Summary}
 \label{sec:conclusions}
 
+When we talk to students who are just starting writing their own codes, then
+they typically understand the importance of testing in some abstract
+sense. But almost all of them have two fundamental misconceptions: First, that
+their codes are either written well enough or will not be changed in ways
+fundamental enough to suggest that these changes might break existing
+functionality. And second, that doing adequate testing is just too hard and
+cumbersome to be a justifiable expense of time.
+
+The first of these two points is empirically false. Only bad programmers
+expect that they will not break existing functionality, no matter how trivial
+a change might be. All experienced programmers will know this to be wrong. The
+reason is that over the course of a scientific code -- say, over the course of
+the 3 years a graduate student does research, and maybe even beyond this if
+the code is handed on to the next student, or if you go on to be a postdoc --
+a code starts out small but is constantly developed into something much larger
+with much more functionality in all sorts of directions. You're not going to
+create one essential version of the code that you can verify to be correct and
+then just round off some edges; you're in fact going to replace the linear by
+a nonlinear model, replace the direct solver by an iterative one, add terms to
+the equation, and make other very fundamental changes that will require you to
+edit all throughout your code. There is no other way than systematic testing
+to ensure that the computation you ran today will still run tomorrow. And you
+will have to run it again tomorrow: your adviser or boss may ask you to redo a
+computation with some slight changes, a reviewer of a paper might ask to do
+additional simulations, you may have forgotten the exact parameters for a data
+set you want to use in your thesis and will have to redo it to verify,
+etc. You may think that once you have created the data 
+for some particular simulation, that the issue is done and will not have to
+repeated -- i.e., that you might in fact just throw away the code -- but this
+is not typically true.
+
+The second of the poinst above -- that testing is hard and time consuming --
+is also empirically false. Once you start to do it systematically, all you
+have to do is morph an existing input file into a new one that tests the
+aspect you have just implemented, and add it to your testsuite. It doesn't
+take very long, you just have to do it right from the start. Once you do this,
+you will find how much faster it suddenly becomes to debug codes. To us, one
+of the most surprising facts of developing stringent testing procedures is not
+just how much better our codes become, but in fact how much safer we feel
+making changes in central places of our code: without tests, we always felt
+insecure and wondered what a change might do to the code, whether it is
+correct in all cases, and if we might be forgetting some cases. With tests,
+we find ourselves a lot more at ease: just make a change, run the 140 or so
+tests and see what happens -- if it all continues to work, then that may not
+be a guarantee that a change is correct, but it sure makes you sleep better at
+night. It really isn't all that hard to find peace of mind!
+
+\bibliographystyle{alpha}
+\bibliography{paper}
 
 \end{document}
