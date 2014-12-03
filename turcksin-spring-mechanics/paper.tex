@@ -561,9 +561,46 @@ floating point numbers. Unfortunately, floating point arithmetic suffers from
 some rather annoying oddities that can make testing scientific codes more
 challenging than code that doesn't use floating point numbers.
 
-First, floating point numbers do not enjoy the same properties as integers.
+At the base of the problem is the fact that floating point numbers do not
+enjoy the same mathematical properties as integers (or, in fact, as real
+numbers). For example, if you take into account round-off, then $(a+b)+c$ is in
+general \textit{not} the same as $a+(b+c)$ or $(a+c)+b$. You can try this out
+with $a=1.0, b=-1.0, c=1e-20$: in double precision, you will get
+$(a+b)+c=1e-20, a+(b+c)=(a+c)+b=0$. This matters because if you make changes
+to the code base, upgrade the compiler, switch from one processor or machine
+to another, or change compiler optimization level, floating point operations
+will be executed in different order and the results will be different at the
+level of roundoff. In other words, your tests will start to fail even though
+nothing fundamentally changed -- but the output will be different.
 
-Talk about numdiff
+Over the past 15 years, we have played with many ideas how to address this
+problem. For example, we tried to just never output numbers to their full 16
+digits of double precision. The idea is that if you only output 5 digits, then
+roundoff surely can't play a role. The problem is that the numbers 1.000\,049
+999\,999\,999\,9 and 1.000\,050\,000\,000\,000\,0 only differ by round-off,
+but when rounded to 5 digits, you either get 1.000\,0 or 1.000\,1. One could
+think that this is a contrived example, but it turns out that this happens
+with rather frustrating regularity if you just output enough numbers -- as one
+often does in scientific codes.
+
+A second area that creates problems that codes often try to compute zeros, but
+because of roundoff what is actually produced are numbers of the kind
+4.863e-19. A human recognizes that this is a zero and, consequently, equal to
+2.489e-19 if all of the numbers around it are on the order of one. But the
+\texttt{diff} command will complain, and consequently signal a difference.
+
+The solution to these problems that we have ultimately come to use
+is a program called \texttt{numdiff}. \texttt{numdiff} works essentially like
+\texttt{diff} but it recognizes if the text it compares in two files is
+actually a number. If two numbers differ by less than some relative or
+absolute tolerance, then they are considered equal even if the characters by
+which they are represented in an output file are different. For example, you
+would replace the \texttt{diff} command used previously by the
+following to ensure that numbers $a$ and $b$ compare as equal if $|a-b|\le
+10^{-6}$ or $|a-b|\le 10^{-8} \max\{|a|,|b|\}$:
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=csh]
+  numdiff -a 1e-6 -r 1e-8 testcase-1.output testcase-1.output.new
+\end{lstlisting}
 
 
 \section{Conclusions}
