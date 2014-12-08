@@ -208,7 +208,11 @@ $\mathbf x_{i,0}$ and initial velocity $\mathbf v_{i,0}$.
 Let's implement a program that can solve these questions. Because we want it
 to be simple and accessible, we're going to use Python as it's widely used and
 because it comes with a number of tools that are going to make our life
-simpler by keeping the program short. Here it is:
+simpler by keeping the program short.%
+\footnote{In order to run this program, you will have to have the Python
+  NumPy, SciPy, and MatPlotLib packages installed on your system, along with
+  the basic Python interpreter.}
+Here it is:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize]
   import json
   ...
@@ -221,7 +225,7 @@ The program reads its input parameters from a file in JSON (see
   will serve for our purposes here primarily because Python has a built-in
   parser for it that makes our program pleasantly free of the tedium of
   parsing input files.}
-Here is an example file that you can find in the file \texttt{testcase-1.json}:
+Here is an example that you can find in the file \texttt{testcase-1.json}:
 \lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-1.json}
 In JSON, the name of a parameter is to the left of the colon and its value is
 to the right; name/value pairs are separated by commas. The value of a
