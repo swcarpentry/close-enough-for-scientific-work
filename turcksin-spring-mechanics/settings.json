@@ -1,8 +1,7 @@
 {
-
-"sadly no comments are allowed in JSON. We could remove lines starting with // though":0,
-
-"This is the spring constant:":0,
-
-"spring_constant": 42.1
+"initial position"   : [ [0,1,1], [0,2,2] ],
+"initial velocity"   : [ [0,0,0], [0,0,0] ],
+"masses"             : [ 1, 1 ],
+"spring constant"    : 1,
+"spring rest length" : 1
 }

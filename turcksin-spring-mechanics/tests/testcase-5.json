@@ -1,6 +1,8 @@
+{
 "initial position"         : [ [0,0,0], [1,0,0] ],
 "initial velocity"         : [ [0,0,0], [0,0,0] ],
 "masses"                   : [ 1, 1 ],
 "spring constant"          : 1,
 "spring rest length"       : 1
 "air friction coefficient" : [ 1, 2 ]
+}
