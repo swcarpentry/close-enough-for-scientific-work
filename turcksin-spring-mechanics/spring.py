@@ -18,6 +18,15 @@ D = settings['spring constant']
 L = settings['spring rest length']
 g = [0., 0., -9.81]
 
+# Try to read "air friction coefficient". If it does not exist C1 and C2 are set
+# to zero
+try:
+    C1 = settings['air friction coefficient'][0]
+    C2 = settings['air friction coefficient'][1]
+except KeyError:
+    C1 = 0.
+    C2 = 0.
+
 # variable order:
 # p1x p1y p1z p2x p2y p2z v1x v1y v1z v2x v2y v2z
 
@@ -40,8 +49,8 @@ def f(t, y):
     v2 = y[9:12]
 
     dist = np.linalg.norm(p2-p1)
-    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0]
-    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1]
+    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0] - C1*np.linalg.norm(p1)*p1
+    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1] - C2*np.linalg.norm(p2)*p2
     return np.concatenate([v1, v2, a1, a2])
 
 r = ode(f).set_integrator('vode', rtol=1e-6)
