@@ -166,7 +166,7 @@ that we will write with the same approach towards input handling and testing
 as \aspect{}.
 
 So this is what we're going to consider: Imagine you are dealing with two
-baseballs (or, if you're living in the ``rest of the world'', golf balls) that
+baseballs that
 are connected by a spring. If you throw them, what are their trajectories?
 Newton's law says that for each of the two balls, mass times acceleration
 equals the force on the body. Let's assume for a moment that there is no air
@@ -253,7 +253,7 @@ So how does one test a code like this? There are really two answers to
 this. The first has to do with ensuring that the functionality we have just
 implemented is correct. The second is how we can ensure that the functionality
 we have implemented today will still work correctly tomorrow after
-implementing developing more features.
+implementing more features.
 
 We often have an intuitive idea of how to do the former. For example, we could
 compare with another code, or we could look at special cases for which we have
@@ -382,8 +382,7 @@ work:
   diff testcase-2.output testcase-2.output.new
 \end{lstlisting}
 With the code that accompanies this paper, \texttt{diff} reports no difference
-between the old and the new output files, so this is reassuring. Apparently
-the trick with 
+between the old and the new output files, so this is reassuring.
 
 Next, we need to write new tests for the new functionality. This is where the
 \textit{clone and graft} technique finally comes into play: take one of the
