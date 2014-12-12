@@ -2,7 +2,7 @@
 import sys
 import json
 
-assert len(sys.argv)==2, 'Please provide an input file.'
+assert len(sys.argv) == 2, 'Please provide an input file.'
 with open(sys.argv[1], 'r') as f:
     settings = json.loads(f.read())
 
@@ -18,8 +18,8 @@ D = settings['spring constant']
 L = settings['spring rest length']
 g = [0., 0., -9.81]
 
-# Try to read "air friction coefficient". If it does not exist C1 and C2 are set
-# to zero
+# Try to read "air friction coefficient". If it does not exist C1 and C2 are
+# set to zero
 try:
     C1 = settings['air friction coefficient'][0]
     C2 = settings['air friction coefficient'][1]
@@ -34,8 +34,8 @@ init_p1 = settings['initial position'][0]
 init_p2 = settings['initial position'][1]
 init_v1 = settings['initial velocity'][0]
 init_v2 = settings['initial velocity'][1]
-y0 = [init_p1[0], init_p1[1], init_p1[2], init_p2[0], init_p2[1], init_p2[2],\
-        init_v1[0], init_v1[1], init_v1[2], init_v2[0], init_v2[1], init_v2[2]]
+y0 = [init_p1[0], init_p1[1], init_p1[2], init_p2[0], init_p2[1], init_p2[2],
+      init_v1[0], init_v1[1], init_v1[2], init_v2[0], init_v2[1], init_v2[2]]
 t0 = 0.
 T = 2
 
