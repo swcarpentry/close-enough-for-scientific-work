@@ -213,10 +213,9 @@ simpler by keeping the program short.%
   NumPy, SciPy, and MatPlotLib packages installed on your system, along with
   the basic Python interpreter.}
 Here it is:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize]
-  import json
-  ...
-\end{lstlisting}
+\marginpar{After documenting spring.py, split it and simplify the first
+  version to the pieces we need here}
+\lstinputlisting[frame=single,basicstyle=\footnotesize,language=Python]{spring.py}
 The program reads its input parameters from a file in JSON (see
 \url{http://en.wikipedia.org/wiki/JSON}) format.%
 \footnote{JSON is not the prettiest format to write input files in and we
@@ -225,7 +224,7 @@ The program reads its input parameters from a file in JSON (see
   will serve for our purposes here primarily because Python has a built-in
   parser for it that makes our program pleasantly free of the tedium of
   parsing input files.}
-Here is an example that you can find in the file \texttt{testcase-1.json}:
+Here is an example that you can find in the file \texttt{tests/testcase-1.json}:
 \lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-1.json}
 In JSON, the name of a parameter is to the left of the colon and its value is
 to the right; name/value pairs are separated by commas. The value of a
@@ -369,11 +368,9 @@ because in that case equation \eqref{eq:ode2} equals the previous version,
 \eqref{eq:ode}.
 
 Implementing all of this leads to the following program:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize]
-  ...
-\end{lstlisting}
+\lstinputlisting[frame=single,basicstyle=\footnotesize,language=Python]{spring.py}
 
-How do we test this? First, we should check whether the old input files still
+How do we test this new functionality? First, we should check whether the old input files still
 work:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=csh]
   python masses-and-springs.py testcase-1.json > testcase-1.output.new
@@ -492,6 +489,7 @@ make minor modifications and additions, and verify the output. Testing
 scientific codes really doesn't have to be hard!
 
 \subsection{Dealing with many tests}
+\label{sec:many-tests}
 
 In practice, once you have accumulated a number of testcases, you will
 encounter practical difficulties. First, when you try to find the right
@@ -571,6 +569,33 @@ then you know that you just broke some functionality that
 want to run this script often to find new bugs as early as possible.
 
 
+\subsection{Dealing with overlapping tests}
+
+In an ideal world, every testcase would only check a single feature (such
+testcases are then often called \textit{unit tests}). This way, if something
+goes wrong with a change to the source code, a single test will fail and it
+will be easy to identify what went wrong.
+
+In practice, this is often difficult to achieve. For example, if we change the
+implementation of the function that provides $f(t,y)$ above and break it, it
+is likely that \textit{all} testcases will start to fail. Similarly, if you
+build testcases by cloning and grafting onto existing ones, whenever the old
+one fails, the new one will likely do so as well.
+
+From experience, it turns out that this is not often a real problem. The vast
+majority of patches concern just small, isolated pieces of the software and in
+those cases, only one or a few testcases will start failing. It is then easy
+to identify the simplest one of these (assuming that they were given useful
+names, see above in Section~\ref{sec:many-tests}), and that is the one one
+will then use for debugging. If one breaks fundamental functionality somewhere
+in the core of the software, a large number of tests will start to fail
+but in those cases you will either be able to quickly find out what is
+happening, or be able to debug the problem by choosing \textit{any} simple
+test that was among those that broke. In summary, from a practical
+perspective, we have found that it is not usually a problem to have testcases
+that check overlapping parts of the software.
+
+
 \subsection{Dealing with round-off}
 
 Scientific computing deals, at a fundamental level, almost always with
@@ -622,6 +647,7 @@ Using this trick, numbers that are written into the output file
 \texttt{testcase-1.output.new} on one machine with slight differences to the
 ones originally saved in \texttt{testcase-1.output} will still be considered
 the same, and the comparison will succeed.
+
 
 
 \section{Summary}
