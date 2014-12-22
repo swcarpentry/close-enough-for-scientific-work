@@ -1,0 +1,11 @@
+Requirements
+------------
+
+- [Julia](http://julialang.org/)
+- [LatBo.jl](https://github.com/UCL/LatBo.jl): comes as a git submodule of this
+  repo
+- [dexy](http://dexy.it/): The idea is to mesh the code and the unit-tests
+  directly from the LatBo.jl repo. That way we're never showing off
+  toy-problems with toy-solutions. It will lileky mean refactoring the tests
+  and/or the code.
+
