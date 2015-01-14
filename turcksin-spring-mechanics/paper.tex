@@ -54,6 +54,7 @@
 
 \maketitle
 
+\marginpar{Bruno - please update email address}
 \section{Introduction}
 
 Our group has been building scientific software for more than a decade and a
@@ -72,8 +73,12 @@ on top of the libraries we had created, we had initially thought that one can
 use the same approaches as one uses for libraries -- but this turned out to
 not work.
 
-Libraries are relatively easy to test because they export large numbers of
-functions that one can call individually from small test programs. These are
+Libraries are relatively easy to test. They export large numbers of
+functions; one can write a simple \texttt{main()} function that sets up a
+couple of data structures, calls one of these functions individually, and
+verifies the correctness of the output; do
+this for every function or class in the library and you've got a good
+testsuite. Such tests are
 often called \textit{unit tests} and are typically complemented by integration
 tests to verify that combinations of classes work well together. Over the
 years we have written about 3,000 of these that are run in multiple
@@ -87,8 +92,7 @@ input files -- and then run through a large fraction of the entire code base
 in computing output. One cannot typically just call a single function in an
 application by presenting a magic input file, in the same way as one would
 call a function in a library by presenting a magic \texttt{main()} function in
-a unit test that just sets up some data and then calls the function in
-question.
+a unit test.
 
 Consequently, different approaches are necessary. In the following, we will
 lay out what we have learned from building and testing the \aspect{} code for the
@@ -100,7 +104,7 @@ consequently, it does not serve the purpose of this book well and we will
 present a simple model problem and model code in
 Sections~\ref{sec:model-problem} and \ref{sec:first-steps} that we
 will then use throughout the rest of the chapter. Sections~\ref{sec:testing}
-and \ref{sec:extending} then
+and \ref{sec:extending}
 discuss how we write tests for whole applications, and how this process
 happens as we continue to develop the code -- using the
 \textit{clone and graft} technique of creating test
@@ -125,7 +129,7 @@ in Section~\ref{sec:conclusions}.
 \end{wrapfigure}
 The code that made us think about how to test whole applications is called
 \aspect{} -- short for the Advanced Solver for Problems in Earth ConvecTion
-\cite{KHB12}. It is a program that simulates how material moves around the Earth
+\cite{KHB12,aspectmanual,aspectweb}. It is a program that simulates how material moves around the Earth
 mantle (i.e., the region between the metallic core of Earth and the plates at
 the surface on which we live). While the material in the mantle is solid rock,
 it is hot and under enormous pressure and can deform with velocities of a few
@@ -136,7 +140,7 @@ rise up, cool at the surface, and blobs of cool material fall down. In other
 words, it convects. The details of trying to simulate this on a computer go
 beyond what we want to discuss here, but it is worth showing a picture and
 linking to the videos at \url{http://www.youtube.com/embed/j63MkEc0RRw} and
-\url{http://www.youtube.com/embed/EJJ6f4hmDPU} simply because they are pretty.
+\url{http://www.youtube.com/embed/EJJ6f4hmDPU}, of only because they are pretty.
 
 \aspect{} is a large code: At the time of writing this chapter, it has 297
 source files with 69,704 lines of code. What's more, it builds on the
@@ -205,27 +209,23 @@ $\mathbf x_{i,0}$ and initial velocity $\mathbf v_{i,0}$.
 \section{A first program}
 \label{sec:first-steps}
 
-Let's implement a program that can solve these questions. Because we want it
+Let's implement a program that can solve this problem. Because we want it
 to be simple and accessible, we're going to use Python as it's widely used and
 because it comes with a number of tools that are going to make our life
 simpler by keeping the program short.%
 \footnote{In order to run this program, you will have to have the Python
   NumPy, SciPy, and MatPlotLib packages installed on your system, along with
   the basic Python interpreter.}
-Here it is:
-\marginpar{After documenting spring.py, split it and simplify the first
-  version to the pieces we need here}
-\lstinputlisting[frame=single,basicstyle=\footnotesize,language=Python]{spring.py}
-The program reads its input parameters from a file in JSON (see
-\url{http://en.wikipedia.org/wiki/JSON}) format.%
+The program we'll show you in a second reads its input parameters from a file in JSON format%
 \footnote{JSON is not the prettiest format to write input files in and we
   don't recommend you use it for your programs (it is typically intended for
   exchange of data between programs, not between humans and computers). But it
   will serve for our purposes here primarily because Python has a built-in
   parser for it that makes our program pleasantly free of the tedium of
-  parsing input files.}
+  parsing input files.} (see
+\url{http://en.wikipedia.org/wiki/JSON}).
 Here is an example that you can find in the file \texttt{tests/testcase-1.json}:
-\lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-1.json}
+\lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize]{tests/testcase-1.json}
 In JSON, the name of a parameter is to the left of the colon and its value is
 to the right; name/value pairs are separated by commas. The value of a
 parameter can be a plain number, or it can be an array if enclosed in
@@ -237,6 +237,12 @@ x_{2,0}=(4,5,6)^T, \mathbf v_{1,0}=(0,0,0)^T, \mathbf v_{2,0}=(1,1,1)^T,
 m_1=13.5, m_2=29.75$ and $D=42, L=2.25$ for the spring that connects them, 
 thereby completely determining everything in equations
 \eqref{eq:ode}--\eqref{eq:ic2}.
+
+The program that can deal with this input looks like this:
+\marginpar{After documenting spring.py, split it and simplify the first
+  version to the pieces we need here}
+\lstinputlisting[frame=single,basicstyle=\footnotesize,numbers=left,language=Python]{spring.py}
+
 
 When you run the program on this data, it will compute the trajectory of the
 two connected balls over a number of seconds.
@@ -319,7 +325,7 @@ The first two are really not very complicated -- create a directory
 \texttt{tests/} in your project and create two files in it, say
 \texttt{testcase-1.json} and \texttt{testcase-1.output}. The last part can
 be as easy as running commands such as
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=csh]
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
   python masses-and-springs.py testcase-1.json > testcase-1.output.new
   diff testcase-1.output testcase-1.output.new
 \end{lstlisting}
@@ -372,7 +378,7 @@ Implementing all of this leads to the following program:
 
 How do we test this new functionality? First, we should check whether the old input files still
 work:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=csh]
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
   python masses-and-springs.py testcase-1.json > testcase-1.output.new
   diff testcase-1.output testcase-1.output.new
   python masses-and-springs.py testcase-2.json > testcase-2.output.new
@@ -529,7 +535,7 @@ this size: care about writing tests from the beginning and if the number of
 tests becomes too unwieldy, there will be professional-grade tools you can
 switch to that can manage this for you. In the meantime, a little shell script
 such as the following will do just fine:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=bash]
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=bash]
   # loop over all .json input files
   for jsonfile in *.json ; do
     # execute our program on it and pipe the output into a file
@@ -549,7 +555,7 @@ such as the following will do just fine:
 If you call this script, say, \texttt{tests/compare.sh}, then running it using
 the command \texttt{cd tests/ ; bash -e compare.sh} should produce output like
 this:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=bash]
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=bash]
  .    testcase-1.json
  .    testcase-2.json
  .    testcase-3.json
@@ -557,7 +563,7 @@ this:
  .    testcase-5.json
 \end{lstlisting}
 On the other hand, if your output looks like this
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=bash]
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=bash]
  .    testcase-1.json
  .    testcase-2.json
  .    testcase-3.json
@@ -640,7 +646,7 @@ which they are represented in an output file are different. For example, you
 would replace the \texttt{diff} command used previously by the
 following to ensure that numbers $a$ and $b$ compare as equal if $|a-b|\le
 10^{-6}$ or $|a-b|\le 10^{-8} \min\{|a|,|b|\}$:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,language=csh]
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
   numdiff -a 1e-6 -r 1e-8 testcase-1.output testcase-1.output.new
 \end{lstlisting}
 Using this trick, numbers that are written into the output file
@@ -699,6 +705,8 @@ we find ourselves a lot more at ease: just make a change, run the 140 or so
 tests and see what happens -- if it all continues to work, then that may not
 be a guarantee that a change is correct, but it sure makes you sleep better at
 night. It really isn't all that hard to find peace of mind!
+
+\marginpar{Acknowledgments}
 
 \bibliographystyle{alpha}
 \bibliography{paper}
