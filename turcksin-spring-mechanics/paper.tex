@@ -174,8 +174,8 @@ baseballs that
 are connected by a spring. If you throw them, what are their trajectories?
 Newton's law says that for each of the two balls, mass times acceleration
 equals the force on the body. Let's assume for a moment that there is no air
-friction and that the spring is massless, then the differential equation that
-describes the motion of each of the two bodies ($i=1,2$) is
+friction and that the spring is massless, then the ordinary differential
+equation (ODE) that describes the motion of each of the two bodies ($i=1,2$) is
 \begin{align}
   \label{eq:ode}
   m_i 
@@ -238,16 +238,48 @@ m_1=13.5, m_2=29.75$ and $D=42, L=2.25$ for the spring that connects them,
 thereby completely determining everything in equations
 \eqref{eq:ode}--\eqref{eq:ic2}.
 
-The program that can deal with this input looks like this:
+To implement a program that can deal with this input, we first need to
+describe how Python solves ODEs. Basically, it requires us to reformulate it
+as a first order system $\mathbf y'(t)=\mathbf f(t,\mathbf y), \mathbf
+y(0)=\mathbf y_0$, and tell the integrator about $\mathbf f$ and $\mathbf
+y_0$. We do this by introducing variables $\mathbf v_i=\mathbf x'_i$ and then
+setting $\mathbf
+y=(x_{1,1},x_{1,2},\ldots,x_{2,3},v_{1,1},v_{1,2},\ldots,v_{2,3})^T$. $\mathbf
+f$ then consists of the $\mathbf v_i$ and the right hand sides of
+\eqref{eq:ode} divided by the $m_i$. With this, the code looks like this:
 \marginpar{After documenting spring.py, split it and simplify the first
   version to the pieces we need here}
 \lstinputlisting[frame=single,basicstyle=\footnotesize,numbers=left,language=Python]{spring.py}
 
 
-When you run the program on this data, it will compute the trajectory of the
-two connected balls over a number of seconds.
+\begin{wrapfigure}{R}{0.2\textwidth}
+  \begin{center}
+    \vspace*{-24pt}
+    \includegraphics[width=0.18\textwidth]{tests/testcase-1.png}
+    \vspace*{-12pt}
+  \end{center}
+  \caption{\it Trajectories for the two balls with the input file from
+    Section~\ref{sec:first-steps}. Note that axes are not shown at the same
+    scale.}
+  \vspace*{-3mm}
+  \label{fig:testcase-1}
+\end{wrapfigure}
 
-...maybe some output...
+When you run the program on this data, it will compute the trajectory of the
+two connected balls over a number of seconds and print their final positions
+to the console.
+Of course, having a plot of their trajectories would be nice too, and you can
+get that by adding the following lines to the bottom of the script:
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=Python]
+import matplotlib.pyplot
+from mpl_toolkits.mplot3d import Axes3D
+fig = matplotlib.pyplot.figure()
+canvas = fig.gca(projection='3d')
+canvas.plot(y_values[:,0], y_values[:,1], y_values[:,2], label='body 1')
+canvas.plot(y_values[:,3], y_values[:,4], y_values[:,5], label='body 2')
+matplotlib.pyplot.show()
+\end{lstlisting}
+The output this creates is shown in Fig.~\ref{fig:testcase-1}.
 
 
 \section{Testing for perpetuity}
@@ -261,10 +293,14 @@ we have implemented today will still work correctly tomorrow after
 implementing more features.
 
 We often have an intuitive idea of how to do the former. For example, we could
-compare with another code, or we could look at special cases for which we have
+note that the center of mass at the end time $T=5$ should have fallen a
+distance of $\delta z=\frac 12 g T^2=\frac{9.81 \cdot 25}{2}\textrm m\approx
+123\textrm{m}$, well in agreement with what Fig.~\ref{fig:testcase-1} shows. We
+could also compare with another code. Or we could look at special cases for
+which we have 
 an analytic solution. For our model problem, one could for example prescribe
 initial velocities so that the bodies are at rest and initial positions so
-that the two bodies are separate by the rest length of the spring; the two
+that the two bodies are separated by the rest length of the spring; the two
 bodies then simply fall straight down and we can easily compute on a piece of
 paper where they should be at time $t$. The following input file
 (\texttt{testcase-2.json}) does this:

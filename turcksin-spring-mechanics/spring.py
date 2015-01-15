@@ -1,46 +1,37 @@
-# read input file
 import sys
 import json
+import numpy
 
+# Read the name of the input file from the command line, and read options from the file:
 assert len(sys.argv) == 2, 'Please provide an input file.'
 with open(sys.argv[1], 'r') as f:
     settings = json.loads(f.read())
 
-
-# example for ODE solver:
-
-from scipy.integrate import ode
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
+# Then retrieve the various parameters from what we just read:
 D = settings['spring constant']
 L = settings['spring rest length']
-g = [0., 0., -9.81]
-
-# Try to read "air friction coefficient". If it does not exist C1 and C2 are
-# set to zero
-try:
-    C1 = settings['air friction coefficient'][0]
-    C2 = settings['air friction coefficient'][1]
-except KeyError:
-    C1 = 0.
-    C2 = 0.
-
-# variable order:
-# p1x p1y p1z p2x p2y p2z v1x v1y v1z v2x v2y v2z
-
-init_p1 = settings['initial position'][0]
-init_p2 = settings['initial position'][1]
-init_v1 = settings['initial velocity'][0]
-init_v2 = settings['initial velocity'][1]
-y0 = [init_p1[0], init_p1[1], init_p1[2], init_p2[0], init_p2[1], init_p2[2],
-      init_v1[0], init_v1[1], init_v1[2], init_v2[0], init_v2[1], init_v2[2]]
-t0 = 0.
-T = 2
+x1_0 = settings['initial position'][0]
+x2_0 = settings['initial position'][1]
+v1_0 = settings['initial velocity'][0]
+v2_0 = settings['initial velocity'][1]
 
 m = [settings['masses'][0], settings['masses'][1]]
 
+
+# See if we can also get friction coefficients. Otherwise set them to zero:
+try:
+    C1 = settings['air friction coefficient'][0]
+except KeyError:
+    C1 = 0.
+try:
+    C2 = settings['air friction coefficient'][1]
+except KeyError:
+    C2 = 0.
+
+
+# describe the differential equation as a first order ODE:
+y0 = [x1_0[0], x1_0[1], x1_0[2], x2_0[0], x2_0[1], x2_0[2],
+      v1_0[0], v1_0[1], v1_0[2], v2_0[0], v2_0[1], v2_0[2]]
 
 def f(t, y):
     p1 = y[0:3]
@@ -48,28 +39,30 @@ def f(t, y):
     v1 = y[6:9]
     v2 = y[9:12]
 
-    dist = np.linalg.norm(p2-p1)
-    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0] - C1*np.linalg.norm(p1)*p1
-    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1] - C2*np.linalg.norm(p2)*p2
-    return np.concatenate([v1, v2, a1, a2])
+    g = [0., 0., -9.81]
 
-r = ode(f).set_integrator('vode', rtol=1e-6)
-r.set_initial_value(y0, t0)
-
-t = [t0]
-yarr = np.array([y0])
-
-while r.successful() and r.t < T:
-    r.integrate(T, step=True)
-    t.append(r.t)
-    yarr = np.vstack((yarr, r.y))
-
-print "time steps:", len(t)
+    dist = numpy.linalg.norm(p2-p1)
+    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0] - C1*numpy.linalg.norm(p1)*p1
+    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1] - C2*numpy.linalg.norm(p2)*p2
+    return numpy.concatenate([v1, v2, a1, a2])
 
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-ax.plot(yarr[:,0], yarr[:,1], yarr[:,2], label='body 1')
-ax.plot(yarr[:,3], yarr[:,4], yarr[:,5], label='body 2')
+# Next create an object that can integrate the ODE numerically:
+start_time = 0.
+end_time   = 5
+import scipy.integrate
+integrator = scipy.integrate.ode(f)
+integrator.set_integrator('vode', rtol=1e-6)
+integrator.set_initial_value(y0, start_time)
 
-plt.show()
+# With this, do the integration step by step, appending values to an array in each step:
+t_values = [start_time]
+y_values = numpy.array([y0])
+while integrator.successful() and integrator.t < end_time:
+    integrator.integrate(end_time, step=True)
+    t_values.append(integrator.t)
+    y_values = numpy.vstack((y_values, integrator.y))
+
+# Having done so, output the number of time steps and the final positions:
+print "time steps:", len(t_values)
+print "final position:", y_values[len(t_values)-1,0:3], y_values[len(t_values)-1,3:6]
