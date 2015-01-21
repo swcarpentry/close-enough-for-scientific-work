@@ -1,8 +1,10 @@
 import sys
 import json
 import numpy
+import scipy.integrate
 
-# Read the name of the input file from the command line, and read options from the file:
+# Read the name of the input file from the command line, and read options from
+# the file:
 assert len(sys.argv) == 2, 'Please provide an input file.'
 with open(sys.argv[1], 'r') as f:
     settings = json.loads(f.read())
@@ -10,24 +12,12 @@ with open(sys.argv[1], 'r') as f:
 # Then retrieve the various parameters from what we just read:
 D = settings['spring constant']
 L = settings['spring rest length']
-x1_0 = settings['initial position'][0]
-x2_0 = settings['initial position'][1]
-v1_0 = settings['initial velocity'][0]
-v2_0 = settings['initial velocity'][1]
+m = settings['masses']
+[x1_0, x2_0] = settings['initial position']
+[v1_0, v2_0] = settings['initial velocity']
 
-m = [settings['masses'][0], settings['masses'][1]]
-
-
-# See if we can also get friction coefficients. Otherwise set them to zero:
-try:
-    C1 = settings['air friction coefficient'][0]
-except KeyError:
-    C1 = 0.
-try:
-    C2 = settings['air friction coefficient'][1]
-except KeyError:
-    C2 = 0.
-
+# the default friction is zero for both objects:
+[C1, C2] = settings.get('air friction coefficient', [0, 0])
 
 # describe the differential equation as a first order ODE:
 y0 = [x1_0[0], x1_0[1], x1_0[2], x2_0[0], x2_0[1], x2_0[2],
@@ -50,12 +40,12 @@ def f(t, y):
 # Next create an object that can integrate the ODE numerically:
 start_time = 0.
 end_time   = 5
-import scipy.integrate
 integrator = scipy.integrate.ode(f)
 integrator.set_integrator('vode', rtol=1e-6)
 integrator.set_initial_value(y0, start_time)
 
-# With this, do the integration step by step, appending values to an array in each step:
+# With this, do the integration step by step, appending values to an array in
+# each step:
 t_values = [start_time]
 y_values = numpy.array([y0])
 while integrator.successful() and integrator.t < end_time:
@@ -65,4 +55,17 @@ while integrator.successful() and integrator.t < end_time:
 
 # Having done so, output the number of time steps and the final positions:
 print "time steps:", len(t_values)
-print "final position:", y_values[len(t_values)-1,0:3], y_values[len(t_values)-1,3:6]
+print "final position:", y_values[-1,0:3], y_values[-1,3:6]
+
+# graphical output:
+if False:
+    import matplotlib.pyplot
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = matplotlib.pyplot.figure()
+    canvas = fig.gca(projection='3d')
+    canvas.plot(y_values[:,0], y_values[:,1], y_values[:,2],
+                label='body 1')
+    canvas.plot(y_values[:,3], y_values[:,4], y_values[:,5], 
+                label='body 2')
+    canvas.legend()
+    matplotlib.pyplot.show()
