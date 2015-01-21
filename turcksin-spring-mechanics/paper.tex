@@ -247,15 +247,70 @@ setting $\mathbf
 y=(x_{1,1},x_{1,2},\ldots,x_{2,3},v_{1,1},v_{1,2},\ldots,v_{2,3})^T$. $\mathbf
 f$ then consists of the $\mathbf v_i$ and the right hand sides of
 \eqref{eq:ode} divided by the $m_i$. With this, the code looks like this:
-\marginpar{After documenting spring.py, split it and simplify the first
-  version to the pieces we need here}
-\lstinputlisting[frame=single,basicstyle=\footnotesize,numbers=left,language=Python]{spring.py}
+\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=Python]
+import sys
+import json
+import numpy
+
+# Read the name of the input file from the command line, and read options from the file:
+assert len(sys.argv) == 2, 'Please provide an input file.'
+with open(sys.argv[1], 'r') as f:
+    settings = json.loads(f.read())
+
+# Then retrieve the various parameters from what we just read:
+D = settings['spring constant']
+L = settings['spring rest length']
+x1_0 = settings['initial position'][0]
+x2_0 = settings['initial position'][1]
+v1_0 = settings['initial velocity'][0]
+v2_0 = settings['initial velocity'][1]
+
+m = [settings['masses'][0], settings['masses'][1]]
+
+# describe the differential equation as a first order ODE:
+y0 = [x1_0[0], x1_0[1], x1_0[2], x2_0[0], x2_0[1], x2_0[2],
+      v1_0[0], v1_0[1], v1_0[2], v2_0[0], v2_0[1], v2_0[2]]
+
+def f(t, y):
+    p1 = y[0:3]
+    p2 = y[3:6]
+    v1 = y[6:9]
+    v2 = y[9:12]
+
+    g = [0., 0., -9.81]
+
+    dist = numpy.linalg.norm(p2-p1)
+    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0]
+    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1]
+    return numpy.concatenate([v1, v2, a1, a2])
 
 
-\begin{wrapfigure}{R}{0.2\textwidth}
+# Next create an object that can integrate the ODE numerically:
+start_time = 0.
+end_time   = 5
+import scipy.integrate
+integrator = scipy.integrate.ode(f)
+integrator.set_integrator('vode', rtol=1e-6)
+integrator.set_initial_value(y0, start_time)
+
+# With this, do the integration step by step, appending values to an array in each step:
+t_values = [start_time]
+y_values = numpy.array([y0])
+while integrator.successful() and integrator.t < end_time:
+    integrator.integrate(end_time, step=True)
+    t_values.append(integrator.t)
+    y_values = numpy.vstack((y_values, integrator.y))
+
+# Having done so, output the number of time steps and the final positions:
+print "time steps:", len(t_values)
+print "final position:", y_values[len(t_values)-1,0:3], y_values[len(t_values)-1,3:6]
+\end{lstlisting}
+
+
+\begin{wrapfigure}{R}{0.3\textwidth}
   \begin{center}
     \vspace*{-24pt}
-    \includegraphics[width=0.18\textwidth]{tests/testcase-1.png}
+    \includegraphics[width=0.28\textwidth]{figures/testcase-1.png}
     \vspace*{-12pt}
   \end{center}
   \caption{\it Trajectories for the two balls with the input file from
@@ -275,8 +330,10 @@ import matplotlib.pyplot
 from mpl_toolkits.mplot3d import Axes3D
 fig = matplotlib.pyplot.figure()
 canvas = fig.gca(projection='3d')
-canvas.plot(y_values[:,0], y_values[:,1], y_values[:,2], label='body 1')
-canvas.plot(y_values[:,3], y_values[:,4], y_values[:,5], label='body 2')
+canvas.plot(y_values[:,0], y_values[:,1], y_values[:,2],
+            label='body 1')
+canvas.plot(y_values[:,3], y_values[:,4], y_values[:,5], 
+            label='body 2')
 matplotlib.pyplot.show()
 \end{lstlisting}
 The output this creates is shown in Fig.~\ref{fig:testcase-1}.
@@ -303,16 +360,16 @@ initial velocities so that the bodies are at rest and initial positions so
 that the two bodies are separated by the rest length of the spring; the two
 bodies then simply fall straight down and we can easily compute on a piece of
 paper where they should be at time $t$. The following input file
-(\texttt{testcase-2.json}) does this:
-\lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-2.json}
+(\texttt{tests/testcase-2.json}) does this:
+\lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize]{tests/testcase-2.json}
 
 In the end, verifying whether the program is correct is problem dependent. Let
 us not go too deep into this because the second answer -- how to ensure that
 functionality continues to work -- is actually much more important in practice
 even though few people realize this when they start developing software. The
-issue essentially boils down to this: I need mechanisms that ensure that
-functionality if I have verified today works correctly, does not break when
-implementing new functionality. This is necessary because good programmers
+issue essentially boils down to this: We need mechanisms that ensure that
+the functionality we have verified works correctly today, does not break when
+we implement new functionality tomorrow. This is necessary because good programmers
 understand that they will make mistakes; what makes them good programmers is
 that they develop ways to minimize the impact by helping them find problems
 quickly. 
@@ -322,7 +379,7 @@ this research is that it cannot be avoided altogether when programming. On the
 other hand, the best programs are those that make it easy to spot bugs and fix
 them quickly. The worst programs are those that are not tested; an empirically
 true statement is that programs that are not tested produce wrong answers --
-where the emphasis is on the fact that they \textit{produce} wrong answers,
+where the emphasis is on the fact that they \textit{do} produce wrong answers,
 not that they \textit{may produce} wrong answers. Experienced programmers all
 attest to this statement. Only bad or inexperienced programmers will assume
 that they do not introduce new bugs in old parts of their programs.%
@@ -341,8 +398,8 @@ have we changed in the intervening months that may cause this? There is likely
 a lot of new code we have written since then, and we may have forgotten about
 a fair share of the details since then. It will take a long time to figure out
 where exactly the problem is. On the other hand, if we had a testsuite that we
-run after essentially every change, we will be notified that something stopped
-working immediately -- with a relatively small number of changes made since
+run after essentially every change, we will be notified immediately that something stopped
+working -- with a relatively small number of changes made since
 the test last worked, and everything still fresh on our mind, finding the bug
 should be a much quicker issue.
 
@@ -359,8 +416,9 @@ correct. To make this work, we have to have three things:
 \end{enumerate}
 The first two are really not very complicated -- create a directory
 \texttt{tests/} in your project and create two files in it, say
-\texttt{testcase-1.json} and \texttt{testcase-1.output}. The last part can
-be as easy as running commands such as
+\texttt{testcase-1.json} and the corresponding output
+\texttt{testcase-1.output}. When it comes time to test at a later time, step 3
+above can be as easy as running commands such as
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
   python masses-and-springs.py testcase-1.json > testcase-1.output.new
   diff testcase-1.output testcase-1.output.new
@@ -373,7 +431,7 @@ difference, then you know that you just broke one of the testcases. If you
 purposefully changed it -- for example because you changed the output format,
 or because you fixed behavior you know was erroneous and have verified that it
 is now correct, then copy the new output over the new one. If you did not
-purposefully change it, then you know it's time to break out the debugger.
+purposefully change what the program computes, then you know it's time to break out the debugger.
 
 
 \section{More functionality}
@@ -383,7 +441,7 @@ We write tests because we expect that our code base will continue to change --
 to implement new functionality, or to fix existing bugs. So let's do this:
 assume we now also want to include air friction on the two balls, and we will
 use that the air friction force is proportional to the square of the speed and
-in the opposite direction of the velocity \cite{...}. Then our model
+in the opposite direction of the velocity. Then our model
 \eqref{eq:ode} needs to change to the following:
 \begin{align}
   \label{eq:ode2}
@@ -405,12 +463,15 @@ If we now require that every input file contains an array of friction
 coefficients $C_i$, we can no longer use old input files. A better strategy is
 to define default values for all non-required parameters and overwrite them
 with the values in the input file if specified. A backward compatible choice
-of input parameter for the $C_i$ is to give them a default value of zero
+of input parameters for the $C_i$ is to give them a default value of zero
 because in that case equation \eqref{eq:ode2} equals the previous version,
 \eqref{eq:ode}.
 
-Implementing all of this leads to the following program:
-\lstinputlisting[frame=single,basicstyle=\footnotesize,language=Python]{spring.py}
+Implementing all of this leads to the following extension of the program shown
+above%
+\footnote{This is the file \texttt{spring.py} in the directory corresponding to
+this paper}, with the new parts in lines 21--29 and 45--46:
+\lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize,language=Python]{spring.py}
 
 How do we test this new functionality? First, we should check whether the old input files still
 work:
@@ -430,7 +491,7 @@ parameters to exercise the new functionality (i.e., \textit{graft} onto
 it). So let's take the simpler of the two previous testcases,
 \texttt{tests/testcase-2.json}, copy it to \texttt{tests/testcase-3.json} and
 add to it something about air friction: 
-\lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-3.json}
+\lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize]{tests/testcase-3.json}
 To verify that the results we get are correct, we can use that in this test
 case the masses and friction coefficients of the two balls are the same, the
 two balls are separated by a distance equal to the rest length of the spring,
@@ -443,9 +504,9 @@ Is one new testcase enough? The answer is rarely yes. For example, it is easy
 to make indexing errors and choosing masses and friction coefficients equal
 would not allow us to detect errors where, for example, we used
 \texttt{friction[1]} in the code where we intended to use \texttt{friction[i]}.
-So let's copy \texttt{tests/testcase-3.json} to
-\texttt{tests/testcase-4.json}:
-\lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-4.json}
+So let's copy \texttt{testcase-3.json} to
+\texttt{testcase-4.json}:
+\lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize]{tests/testcase-4.json}
 Here, the second ball has a greater mass, but the same air friction
 coefficient (think of it as denser but with the same diameter). How do we know
 whether our code is correct for this case as well? This may be more difficult
@@ -459,14 +520,18 @@ functionality does not break as a result of further development -- in the long
 term the more important of the two reasons to write tests.
 
 Because it is so easy to create tests, it may be worthwhile cloning
-\texttt{tests/testcase-3.json} a second time into
-\texttt{tests/testcase-5.json} where now we just set the friction coefficients
+\texttt{testcase-3.json} a second time into
+\texttt{testcase-5.json} where now we just set the friction coefficients
 differently:
-\lstinputlisting[frame=single,basicstyle=\footnotesize]{tests/testcase-4.json}
+\lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize]{tests/testcase-5.json}
 Now the two balls have the same mass but the second one has a higher drag
 coefficient (think of the first ball as smooth and the second one as covered
 in fur). Our ``smell check'' would now be to verify that the second ball drags
 behind the first.
+
+If we're reasonably convinced that the output is correct, then save the output
+in files \texttt{tests/testcase-3.output} through
+\texttt{tests/testcase-5.output} for use in future testing.
 
 \section{Practical considerations}
 \label{sec:practice}
@@ -490,7 +555,7 @@ inheritance graph is shown in Fig.~\ref{fig:inheritance}. It is, of course, a
 
 But this does not always work. There are cases where you will have to write a
 new test from scratch. To give an example of where this was necessary,
-consider \aspect{}: imagine that at the beginning, it could only compute
+consider \aspect{}: Imagine that at the beginning, it could only compute
 convection in a box. We would have testcases that described different
 temperature boundary conditions on this box, and various other things. But
 when implementing a spherical geometry, none of these testcases quite fit:
@@ -519,7 +584,7 @@ point, the metaphor of inheritance graphs starts to break down. However, in
 practice, most tests are still closely related to some others. A visualization
 of this for the 144 tests that are part of \aspect{}, each represented by a
 dot, is shown in Fig.~\ref{fig:aspect-tests} where we draw tests farther apart
-of there are more textual differences between the input files. Many tests come
+if there are more textual differences between the input files. Many tests come
 in groups of 2, 3 or 4 that only differ in a few lines of input -- simple
 modifications such as those between testcases 3, 4 and 5 above. On the other
 hand, other group are further apart and are derived from different
@@ -536,7 +601,7 @@ scientific codes really doesn't have to be hard!
 In practice, once you have accumulated a number of testcases, you will
 encounter practical difficulties. First, when you try to find the right
 starting point to clone and graft a new testcase, you will not recall if
-\texttt{tests/testcase-3.json} or \texttt{tests/testcase-5.json} is the one
+\texttt{testcase-3.json} or \texttt{testcase-5.json} is the one
 that's closest to the situation you have in mind (for example, if you want to
 augment your model and you are looking again for a testcase with equal masses
 and friction coefficients). 
@@ -571,23 +636,7 @@ this size: care about writing tests from the beginning and if the number of
 tests becomes too unwieldy, there will be professional-grade tools you can
 switch to that can manage this for you. In the meantime, a little shell script
 such as the following will do just fine:
-\begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=bash]
-  # loop over all .json input files
-  for jsonfile in *.json ; do
-    # execute our program on it and pipe the output into a file
-    python ${jsonfile} > ${jsonfile}.new
-
-    # then compare output; only ask 'diff' to report whether the
-    # files are the same or not, and create output depending on this:
-    # print an 'X' if there is a difference, a '.' if there isn't. this
-    # ensures that test failures are easily visible
-    if (diff ${jasonfile} ${jsonfile}.new > /dev/null) ; then
-      echo " .    ${jasonfile}" ;
-    else 
-      echo " X    ${jasonfile}" ;
-    fi
-  done
-\end{lstlisting}
+\lstinputlisting[frame=single,basicstyle=\footnotesize,numbers=left,language=bash]{tests/compare.sh}
 If you call this script, say, \texttt{tests/compare.sh}, then running it using
 the command \texttt{cd tests/ ; bash -e compare.sh} should produce output like
 this:
@@ -628,14 +677,15 @@ From experience, it turns out that this is not often a real problem. The vast
 majority of patches concern just small, isolated pieces of the software and in
 those cases, only one or a few testcases will start failing. It is then easy
 to identify the simplest one of these (assuming that they were given useful
-names, see above in Section~\ref{sec:many-tests}), and that is the one one
+names, see above in Section~\ref{sec:many-tests}), and that is the one we
 will then use for debugging. If one breaks fundamental functionality somewhere
 in the core of the software, a large number of tests will start to fail
 but in those cases you will either be able to quickly find out what is
 happening, or be able to debug the problem by choosing \textit{any} simple
 test that was among those that broke. In summary, from a practical
 perspective, we have found that it is not usually a problem to have testcases
-that check overlapping parts of the software.
+that check overlapping parts of the software. Rather, we have come to the
+conclusion that having as many tests as possible, regardless of overlap.
 
 
 \subsection{Dealing with round-off}
@@ -654,8 +704,8 @@ $(a+b)+c=1e-20, a+(b+c)=(a+c)+b=0$. This matters because if you make changes
 to the code base, upgrade the compiler, switch from one processor or machine
 to another, or change compiler optimization level, floating point operations
 will be executed in different order and the results will be different at the
-level of roundoff. In other words, your tests will start to fail even though
-nothing fundamentally changed -- but the output will be different.
+level of roundoff. In other words, your tests will fail even though
+nothing fundamentally changed.
 
 Over the past 15 years, we have played with many ideas how to address this
 problem. For example, we tried to just never output numbers to their full 16
@@ -667,14 +717,16 @@ think that this is a contrived example, but it turns out that this happens
 with rather frustrating regularity if you just output enough numbers -- as one
 often does in scientific codes.
 
-A second area that creates problems that codes often try to compute zeros, but
-because of roundoff what is actually produced are numbers of the kind
+A second area that creates problems is that codes often try to compute zeros, but
+because of roundoff what is actually produced are numbers like
 4.863e-19. A human recognizes that this is a zero and, consequently, equal to
 2.489e-19 if all of the numbers around it are on the order of one. But the
 \texttt{diff} command will complain, and consequently signal a difference.
 
 The solution to these problems that we have ultimately come to use
-is a program called \texttt{numdiff}. \texttt{numdiff} works essentially like
+is a program called \texttt{numdiff}.%
+\footnote{See \url{http://www.nongnu.org/numdiff/}.}
+\texttt{numdiff} works essentially like
 \texttt{diff} but it recognizes if the text it compares in two files is
 actually a number. If two numbers differ by less than some relative or
 absolute tolerance, then they are considered equal even if the characters by
@@ -695,7 +747,7 @@ the same, and the comparison will succeed.
 \section{Summary}
 \label{sec:conclusions}
 
-When we talk to students who are just starting writing their own codes, then
+When we talk to students who just starting writing their own codes, then
 they typically understand the importance of testing in some abstract
 sense. But almost all of them have two fundamental misconceptions: First, that
 their codes are either written well enough or will not be changed in ways
@@ -706,7 +758,7 @@ cumbersome to be a justifiable expense of time.
 The first of these two points is empirically false. Only bad programmers
 expect that they will not break existing functionality, no matter how trivial
 a change might be. All experienced programmers will know this to be wrong. The
-reason is that over the course of a scientific code -- say, over the course of
+reason is that over the lifetime of a scientific code -- say, over the course of
 the 3 years a graduate student does research, and maybe even beyond this if
 the code is handed on to the next student, or if you go on to be a postdoc --
 a code starts out small but is constantly developed into something much larger
@@ -745,7 +797,7 @@ night. It really isn't all that hard to find peace of mind!
 \paragraph*{Acknowledgments}
 B.~Turcksin and W.~Bangerth were partially supported by the National Science
 Foundation under award OCI-1148116 as part of the Software Infrastructure for
-Sustained Innovation (SI2) program; by the Computational
+Sustained Innovation (SI2) program; and by the Computational
 Infrastructure in Geodynamics initiative (CIG), through the National Science
 Foundation under Award No.~EAR-0949446 and The University of California --
 Davis.
