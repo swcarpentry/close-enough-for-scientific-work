@@ -352,16 +352,16 @@ correct. To make this work, we have to have three things:
 The first two are really not very complicated -- create a directory
 \texttt{tests/} in your project and create two files in it, say
 \texttt{testcase-1.json} and the corresponding output
-\texttt{testcase-1.output}. When it comes time to test at a later time, step 3
+\texttt{testcase-1.reference}. When it comes time to test at a later time, step 3
 above can be as easy as running commands such as
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
-  python masses-and-springs.py testcase-1.json > testcase-1.output.new
-  diff testcase-1.output testcase-1.output.new
+  python spring.py testcase-1.json > testcase-1.output
+  diff testcase-1.output testcase-1.reference
 \end{lstlisting}
 You would repeat all of this for \texttt{testcase-2.json}, of course.
 If the \texttt{diff} program produces no output, then the two files are the
 same and your program computed the same answer on this input file as it did
-back when you created the \texttt{testcase-1.output} file. If there is a
+back when you created the \texttt{testcase-1.reference} file. If there is a
 difference, then you know that you just broke one of the testcases. If you
 purposefully changed it -- for example because you changed the output format,
 or because you fixed behavior you know was erroneous and have verified that it
@@ -411,10 +411,10 @@ this paper}, with the new parts in lines 19--20 and 35--36:
 How do we test this new functionality? First, we should check whether the old input files still
 work:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
-  python masses-and-springs.py testcase-1.json > testcase-1.output.new
-  diff testcase-1.output testcase-1.output.new
-  python masses-and-springs.py testcase-2.json > testcase-2.output.new
-  diff testcase-2.output testcase-2.output.new
+  python spring.py testcase-1.json > testcase-1.output
+  diff testcase-1.output testcase-1.reference
+  python spring.py testcase-2.json > testcase-2.output
+  diff testcase-2.output testcase-2.reference
 \end{lstlisting}
 With the code that accompanies this paper, \texttt{diff} reports no difference
 between the old and the new output files, so this is reassuring.
@@ -670,11 +670,11 @@ would replace the \texttt{diff} command used previously by the
 following to ensure that numbers $a$ and $b$ compare as equal if $|a-b|\le
 10^{-6}$ or $|a-b|\le 10^{-8} \min\{|a|,|b|\}$:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
-  numdiff -a 1e-6 -r 1e-8 testcase-1.output testcase-1.output.new
+  numdiff -a 1e-6 -r 1e-8 testcase-1.output testcase-1.reference
 \end{lstlisting}
 Using this trick, numbers that are written into the output file
-\texttt{testcase-1.output.new} on one machine with slight differences to the
-ones originally saved in \texttt{testcase-1.output} will still be considered
+\texttt{testcase-1.output} on one machine with slight differences to the
+ones originally saved in \texttt{testcase-1.reference} will still be considered
 the same, and the comparison will succeed.
 
 
