@@ -29,8 +29,8 @@ def f(t, y):
     g = [0., 0., -9.81]
 
     dist = numpy.linalg.norm(p2-p1)
-    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0] - C1*numpy.linalg.norm(p1)*p1
-    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1] - C2*numpy.linalg.norm(p2)*p2
+    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0]
+    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1]
     return numpy.concatenate([v1, v2, a1, a2])
 
 
