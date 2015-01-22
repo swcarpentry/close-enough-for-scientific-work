@@ -46,7 +46,7 @@
     University, College Station, TX 77843-3368, USA, \url{???}}
 \and
    Timo Heister\footnote{Mathematical Sciences, O-110 Martin Hall, Clemson University,
-     Clemson, SC 29634-095, USA, \url{heister@clemson.edu}}
+     Clemson, SC 29634-0975, USA, \url{heister@clemson.edu}}
 \and
    Wolfgang Bangerth\footnote{Corresponding author. Department of Mathematics, Texas A\&M
      University, College Station, TX 77843-3368, USA, \url{bangerth@math.tamu.edu}}}
@@ -110,10 +110,10 @@ happens as we continue to develop the code -- using the
 \textit{clone and graft} technique of creating test
 cases. Section~\ref{sec:practice} then deals with how real practice interferes
 with the ideas discussed in previous sections, and we conclude and summarize
-in Section~\ref{sec:conclusions}. 
+in Section~\ref{sec:conclusions}.
 
 
-\section{\aspect{}: the Advanced Solver for Problems in Earth ConvecTion}
+\section{\aspect{}: the Advanced Solver for Problems in Earth's ConvecTion}
 \label{sec:aspect}
 
 \begin{wrapfigure}{R}{0.44\textwidth}
@@ -128,7 +128,7 @@ in Section~\ref{sec:conclusions}.
   \label{fig:aspect}
 \end{wrapfigure}
 The code that made us think about how to test whole applications is called
-\aspect{} -- short for the Advanced Solver for Problems in Earth ConvecTion
+\aspect{} -- short for the Advanced Solver for Problems in Earth's ConvecTion
 \cite{KHB12,aspectmanual,aspectweb}. It is a program that simulates how material moves around the Earth
 mantle (i.e., the region between the metallic core of Earth and the plates at
 the surface on which we live). While the material in the mantle is solid rock,
@@ -140,7 +140,7 @@ rise up, cool at the surface, and blobs of cool material fall down. In other
 words, it convects. The details of trying to simulate this on a computer go
 beyond what we want to discuss here, but it is worth showing a picture and
 linking to the videos at \url{http://www.youtube.com/embed/j63MkEc0RRw} and
-\url{http://www.youtube.com/embed/EJJ6f4hmDPU}, of only because they are pretty.
+\url{http://www.youtube.com/embed/EJJ6f4hmDPU}, if only because they are pretty.
 
 \aspect{} is a large code: At the time of writing this chapter, it has 297
 source files with 69,704 lines of code. What's more, it builds on the
@@ -214,10 +214,10 @@ to be simple and accessible, we're going to use Python as it's widely used and
 because it comes with a number of tools that are going to make our life
 simpler by keeping the program short.%
 \footnote{In order to run this program, you will have to have the Python
-  NumPy, SciPy, and MatPlotLib packages installed on your system, along with
+  NumPy, SciPy, and matplotlib packages installed on your system, along with
   the basic Python interpreter.}
 The program we'll show you in a second reads its input parameters from a file in JSON format%
-\footnote{JSON is not the prettiest format to write input files in and we
+\footnote{While certainly more sane compared to XML, JSON is not the prettiest format to write input files in and we
   don't recommend you use it for your programs (it is typically intended for
   exchange of data between programs, not between humans and computers). But it
   will serve for our purposes here primarily because Python has a built-in
@@ -242,7 +242,7 @@ To implement a program that can deal with this input, we first need to
 describe how Python solves ODEs. Basically, it requires us to reformulate it
 as a first order system $\mathbf y'(t)=\mathbf f(t,\mathbf y), \mathbf
 y(0)=\mathbf y_0$, and tell the integrator about $\mathbf f$ and $\mathbf
-y_0$. We do this by introducing variables $\mathbf v_i=\mathbf x'_i$ and then
+y_0$. We do this by introducing variables for the velocities $\mathbf v_i=\mathbf x'_i$ and then
 setting $\mathbf
 y=(x_{1,1},x_{1,2},\ldots,x_{2,3},v_{1,1},v_{1,2},\ldots,v_{2,3})^T$. $\mathbf
 f$ then consists of the $\mathbf v_i$ and the right hand sides of
@@ -405,7 +405,7 @@ because in that case equation \eqref{eq:ode2} equals the previous version,
 Implementing all of this leads to the following extension of the program shown
 above%
 \footnote{This is the file \texttt{spring.py} in the directory corresponding to
-this paper}, with the new parts in lines 19--20 and 35--36:
+this paper.}, with the new parts in lines 19--20 and 35--36:
 \lstinputlisting[frame=single,numbers=left,basicstyle=\footnotesize,language=Python]{spring.py}
 
 How do we test this new functionality? First, we should check whether the old input files still
@@ -620,7 +620,7 @@ happening, or be able to debug the problem by choosing \textit{any} simple
 test that was among those that broke. In summary, from a practical
 perspective, we have found that it is not usually a problem to have testcases
 that check overlapping parts of the software. Rather, we have come to the
-conclusion that having as many tests as possible, regardless of overlap.
+conclusion that it is best to have as many tests as possible, regardless of overlap.
 
 
 \subsection{Dealing with round-off}
@@ -736,7 +736,12 @@ Sustained Innovation (SI2) program; and by the Computational
 Infrastructure in Geodynamics initiative (CIG), through the National Science
 Foundation under Award No.~EAR-0949446 and The University of California --
 Davis.
-\marginpar{Timo -- please update.}
+
+T.~Heister was partially supported by the Computational
+Infrastructure in Geodynamics initiative (CIG), through the National Science
+Foundation under Award No.~EAR-0949446 and The University of California --
+Davis.
+
 
 \bibliographystyle{alpha}
 \bibliography{paper}
