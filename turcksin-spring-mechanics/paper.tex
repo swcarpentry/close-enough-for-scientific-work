@@ -67,7 +67,7 @@ BLAS and LAPACK to very much more complex ones such as \petsc{}, \trilinos{}, or
 \dealii{} \cite{petsc,trilinos,trilinos-web-page}.
 
 Developing testing schemes for libraries is reasonably well understood. So,
-when we ventured in the area of building applications for scientific purposes
+when we ventured in the area of building \textit{applications} for scientific purposes
 on top of the libraries we had created, we had initially thought that one can
 use the same approaches as one uses for libraries -- but this turned out to
 not work.
@@ -91,7 +91,9 @@ input files -- and then run through a large fraction of the entire code base
 in computing output. One cannot typically just call a single function in an
 application by presenting a magic input file, in the same way as one would
 call a function in a library by presenting a magic \texttt{main()} function in
-a unit test.
+a unit test. There are of course more advanced ways of testing features of an
+application in isolation by replacing other parts of the code during testing by so-called
+mock or stub objects. We will not discuss this here though.
 
 Consequently, different approaches are necessary. In the following, we will
 lay out what we have learned from building and testing the \aspect{} code for the
@@ -215,6 +217,10 @@ simpler by keeping the program short.%
 \footnote{In order to run this program, you will have to have the Python
   NumPy, SciPy, and matplotlib packages installed on your system, along with
   the basic Python interpreter.}
+Note that testing is even more important in dynamically typed languages like
+Python, because you do not have the compiler to help you find bugs at compile 
+time.
+  
 The program we'll show you in a second reads its input parameters from a file in JSON format%
 \footnote{While certainly more sane compared to XML, JSON is not the prettiest format to write input files in and we
   don't recommend you use it for your programs (it is typically intended for
