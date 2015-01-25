@@ -361,7 +361,7 @@ The first two are really not very complicated -- create a directory
 above can be as easy as running commands such as
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
   python spring.py testcase-1.json > testcase-1.output
-  diff testcase-1.output testcase-1.reference
+  diff testcase-1.reference testcase-1.output
 \end{lstlisting}
 You would repeat all of this for \texttt{testcase-2.json}, of course.
 If the \texttt{diff} program produces no output, then the two files are the
@@ -370,7 +370,7 @@ back when you created the \texttt{testcase-1.reference} file. If there is a
 difference, then you know that you just broke one of the testcases. If you
 purposefully changed it -- for example because you changed the output format,
 or because you fixed behavior you know was erroneous and have verified that it
-is now correct, then copy the new output over the new one. If you did not
+is now correct, then copy the new output over the old reference file. If you did not
 purposefully change what the program computes, then you know it's time to break out the debugger.
 
 
@@ -417,9 +417,9 @@ How do we test this new functionality? First, we should check whether the old in
 work:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
   python spring.py testcase-1.json > testcase-1.output
-  diff testcase-1.output testcase-1.reference
+  diff testcase-1.reference testcase-1.output
   python spring.py testcase-2.json > testcase-2.output
-  diff testcase-2.output testcase-2.reference
+  diff testcase-2.reference testcase-2.output
 \end{lstlisting}
 With the code that accompanies this paper, \texttt{diff} reports no difference
 between the old and the new output files, so this is reassuring.
@@ -470,8 +470,8 @@ in fur). Our ``smell check'' would now be to verify that the second ball drags
 behind the first.
 
 If we're reasonably convinced that the output is correct, then save the output
-in files \texttt{tests/testcase-3.output} through
-\texttt{tests/testcase-5.output} for use in future testing.
+in files \texttt{tests/testcase-3.reference} through
+\texttt{tests/testcase-5.reference} for use in future testing.
 
 \section{Practical considerations}
 \label{sec:practice}
@@ -675,7 +675,7 @@ would replace the \texttt{diff} command used previously by the
 following to ensure that numbers $a$ and $b$ compare as equal if $|a-b|\le
 10^{-6}$ or $|a-b|\le 10^{-8} \min\{|a|,|b|\}$:
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize,numbers=left,language=csh]
-  numdiff -a 1e-6 -r 1e-8 testcase-1.output testcase-1.reference
+  numdiff -a 1e-6 -r 1e-8 testcase-1.reference testcase-1.output
 \end{lstlisting}
 Using this trick, numbers that are written into the output file
 \texttt{testcase-1.output} on one machine with slight differences to the

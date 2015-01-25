@@ -8,7 +8,7 @@ for jsonfile in *.json ; do
   # files are the same or not, and create output depending on this:
   # print an 'X' if there is a difference, a '.' if there isn't. this
   # ensures that test failures are easily visible
-  if (diff ${testname}.output ${testname}.reference > /dev/null) ; then
+  if (diff ${testname}.reference ${testname}.output > /dev/null) ; then
     echo " .    ${jsonfile}" ;
   else
     echo " X    ${jsonfile}" ;
