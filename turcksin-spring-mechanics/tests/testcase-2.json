@@ -1,5 +1,7 @@
+{
 "initial position"   : [ [0,0,0], [1,0,0] ],
 "initial velocity"   : [ [0,0,0], [0,0,0] ],
 "masses"             : [ 1, 2 ],
 "spring constant"    : 1,
 "spring rest length" : 1
+}

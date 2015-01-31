@@ -16,9 +16,6 @@ m = settings['masses']
 [x1_0, x2_0] = settings['initial position']
 [v1_0, v2_0] = settings['initial velocity']
 
-# the default friction is zero for both objects:
-[C1, C2] = settings.get('air friction coefficient', [0, 0])
-
 # describe the differential equation as a first order ODE:
 y0 = [x1_0[0], x1_0[1], x1_0[2], x2_0[0], x2_0[1], x2_0[2],
       v1_0[0], v1_0[1], v1_0[2], v2_0[0], v2_0[1], v2_0[2]]
@@ -32,8 +29,8 @@ def f(t, y):
     g = [0., 0., -9.81]
 
     dist = numpy.linalg.norm(p2-p1)
-    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0] - C1*numpy.linalg.norm(p1)*p1
-    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1] - C2*numpy.linalg.norm(p2)*p2
+    a1 = g - D*(dist-L) * (p1-p2)/dist/m[0]
+    a2 = g - D*(dist-L) * (p2-p1)/dist/m[1]
     return numpy.concatenate([v1, v2, a1, a2])
 
 
@@ -56,16 +53,3 @@ while integrator.successful() and integrator.t < end_time:
 # Having done so, output the number of time steps and the final positions:
 print "time steps:", len(t_values)
 print "final position:", y_values[-1,0:3], y_values[-1,3:6]
-
-# graphical output:
-if False:
-    import matplotlib.pyplot
-    from mpl_toolkits.mplot3d import Axes3D
-    fig = matplotlib.pyplot.figure()
-    canvas = fig.gca(projection='3d')
-    canvas.plot(y_values[:,0], y_values[:,1], y_values[:,2],
-                label='body 1')
-    canvas.plot(y_values[:,3], y_values[:,4], y_values[:,5], 
-                label='body 2')
-    canvas.legend()
-    matplotlib.pyplot.show()
