@@ -1,11 +1,31 @@
 Requirements
 ------------
 
-- [Julia](http://julialang.org/)
-- [LatBo.jl](https://github.com/UCL/LatBo.jl): comes as a git submodule of this
-  repo
-- [dexy](http://dexy.it/): The idea is to mesh the code and the unit-tests
-  directly from the LatBo.jl repo. That way we're never showing off
-  toy-problems with toy-solutions. It will lileky mean refactoring the tests
-  and/or the code.
+- [Julia](http://julialang.org/): Science-oriented programming language
+- [Jupyter](https://jupyter.org/): Shiny way to write code+comments.
+- [IJulia.jl](https://github.com/JuliaLang/IJulia.jl): Shiny way to write code+comments with Julia.
+- [LatBo.jl](https://github.com/UCL/LatBo.jl): Fluid-dynamics code that will be tested in this
+  lesson
+- [FactCheck.jl](https://github.com/JuliaLang/FactCheck.jl): Testing framework
+- [GLM.jl](https://github.com/JuliaStats/GLM.jl): General Linear Models
+- [DataFrame.jl](https://github.com/JuliaStats/DataFrames.jl): Data-structure specialised for
+  statistics
+- [Gadfly.jl](https://github.com/dcjones/Gadfly.jl): One way to create graphs in Julia.
 
+The programming language can be installed form its website, or from your Unix package manager (yum,
+apt-get, Homebrew ...). The second and third items make up a software that we use to create a lesson
+interlacing both text and code. `Jupyter` is also known as
+[IPython](http://ipython.org) and can be installed as shown
+[here](http://ipython.org/install.html). The `IJulia` component can be installed from _inside_ a
+Julia prompt:
+
+~~~Julia
+Pkg.add("IJulia")
+import IJulia
+IJulia.notebook()
+~~~
+
+The first line will install `IJulia`. The second and third will run it in the current directory.
+Make sure that directory contains this lesson!
+
+Enjoy

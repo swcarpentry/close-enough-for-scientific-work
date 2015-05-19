@@ -5,6 +5,9 @@ encoding: UTF-8
 authors: Samantha Ahern, Mayeul d\'Avezac, Adrian Harwood, Joe O\'Conner
 ---
 
+<head>
+<link rel="stylesheet" type="text/css" href="syntax.css">
+</head>
 
 Lattice-Boltzmann implementation in Julia
 -----------------------------------------
@@ -21,7 +24,7 @@ step and each lattice site, the particles collide, exchanging member particles
 between populations.
 
 In this chapter, we will describe the test-driven development of a
-Lattice-Boltzmann simulation in [Julia](http://julialang.org/). We will special
+Lattice-Boltzmann simulation in [Julia](http://julialang.org/). We will put
 specific emphasis on how unit-testing allows us to design software with good
 separation of concerns, and on how unit-testing represents a blue print of how
 a specific piece of code is meant to be both used and not used. These two
@@ -35,7 +38,7 @@ Institute](http://www.software.ac.uk/).
 [LatBo.jl](https://github.com/UCL/LatBo.jl) exists as a Julia package. It can
 be installed from the Julia prompt with:
 
-{% highlight Julia %}
+{% highlight Julia linenos %}
 Pkg.clone("git@github.com:UCL/LatBo.jl.git")
 Pkg.installed("LatBo")
 {% endhighlight %}
